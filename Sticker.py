@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtGui
 
-from PyQt5.QtWidgets import QMainWindow ,QApplication, QWidget, QLabel
+from PyQt5.QtWidgets import QMainWindow ,QApplication, QWidget, QLabel,QAction,qApp
 from PyQt5.QtCore import Qt,QRect,QSize
 from PyQt5.QtGui import QMouseEvent, QCursor, QPixmap , QMovie
 
@@ -9,8 +9,8 @@ class Sticker(QMainWindow):
     def __init__(self):
         super(Sticker,self).__init__()
         self.imgPath = "image/sticker.gif"
+        self.setContextMenu()
         self.stickerInit()
-        # self.setContextMenu()
 
     def stickerInit(self):
         centralwidget = QWidget(self)
@@ -42,10 +42,16 @@ class Sticker(QMainWindow):
         self.show()
 
 
-    # def setContextMenu():
+    def setContextMenu(self):
+        
+        self.setContextMenuPolicy(Qt.ActionsContextMenu)
+        quit_action = QAction('잘가 ㅠㅠ',self)
+        self.addAction(quit_action)
 
+        quit_action.triggered.connect(self.quitApp)
 
-
+    def quitApp(self):
+        qApp.quit()
 
     # 마우스 드래그 오버라이딩
     def mousePressEvent(self, event: QMouseEvent) -> None:
