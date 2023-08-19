@@ -1,16 +1,28 @@
-import sys
+import sys , asyncio , math
 from PyQt5 import QtGui
 
 from PyQt5.QtWidgets import QMainWindow ,QApplication, QWidget, QLabel,QAction,qApp
-from PyQt5.QtCore import Qt,QRect,QSize
+from PyQt5.QtCore import Qt,QRect,QSize,QTimer,QPoint
 from PyQt5.QtGui import QMouseEvent, QCursor, QPixmap , QMovie
+
+            
+
 
 class Sticker(QMainWindow):
     def __init__(self):
         super(Sticker,self).__init__()
         self.imgPath = "image/sticker.gif"
+        self.positionInit()
         self.setContextMenu()
         self.stickerInit()
+        self.timerInit()
+
+    #각종 위치의 초기값을 설정
+    def positionInit(self):
+        #마우스 위치 벡터
+        self.pt = QPoint(0,0)
+        
+        
 
     def stickerInit(self):
         centralwidget = QWidget(self)
@@ -29,8 +41,8 @@ class Sticker(QMainWindow):
         self.movie.start()
         self.movie.stop()
 
-        w = int(self.movie.frameRect().size().width())
-        h = int(self.movie.frameRect().size().height())
+        w = int(self.movie.frameRect().size().width() * 0.5)
+        h = int(self.movie.frameRect().size().height() * 0.5)
 
         print(w , h)
         self.movie.setScaledSize(QSize(w,h))
@@ -50,6 +62,24 @@ class Sticker(QMainWindow):
 
         quit_action.triggered.connect(self.quitApp)
 
+
+    def timerInit(self):
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.__workHandler)
+        self.timer.start(10)
+
+    def __workHandler(self):
+        vector = QPoint(QCursor.pos() - self.pos())
+        # print(self.pt.x(),self.pt.y())
+
+        #벡터 정규화 (단위벡터로 만들어줌)
+        vector /= math.sqrt(vector.x()**2 + vector.y()**2)
+        vector *= 2
+        print(vector.x() , vector.y())
+
+        # 해당 방향으로 이동
+        self.move(self.pos() + vector)
+
     def quitApp(self):
         qApp.quit()
 
@@ -60,6 +90,9 @@ class Sticker(QMainWindow):
             self.m_Position=event.globalPos()-self.pos()
     
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        #마우스 위치정보를 항상 갱신
+        self.pt = event.globalPos()
+        print(self.pt.x(),self.pt.y())
         if Qt.LeftButton and self.m_flag:  
             self.move(event.globalPos()-self.m_Position)
             event.accept()
