@@ -41,15 +41,15 @@ class Sticker(QMainWindow):
         self.movie.start()
         self.movie.stop()
 
-        w = int(self.movie.frameRect().size().width() * 0.5)
-        h = int(self.movie.frameRect().size().height() * 0.5)
+        self.w = int(self.movie.frameRect().size().width() * 0.5)
+        self.h = int(self.movie.frameRect().size().height() * 0.5)
 
-        print(w , h)
-        self.movie.setScaledSize(QSize(w,h))
+        print(self.w , self.h)
+        self.movie.setScaledSize(QSize(self.w , self.h))
 
         self.movie.start()
 
-        self.setGeometry(0,0,w,h)
+        self.setGeometry(0,0,self.w , self.h)
 
         self.show()
 
@@ -69,11 +69,15 @@ class Sticker(QMainWindow):
         self.timer.start(10)
 
     def __workHandler(self):
-        vector = QPoint(QCursor.pos() - self.pos())
+        #중앙 위치 계산
+        centerPos = QPoint(self.pos().x() + self.w // 2 , self.pos().y() + self.h //2)
+        vector = QPoint(QCursor.pos() - centerPos)
         # print(self.pt.x(),self.pt.y())
 
         #벡터 정규화 (단위벡터로 만들어줌)
         vector /= math.sqrt(vector.x()**2 + vector.y()**2)
+        
+        # 적당히 벡터의 크기를 늘려줌
         vector *= 2
         print(vector.x() , vector.y())
 
@@ -90,9 +94,6 @@ class Sticker(QMainWindow):
             self.m_Position=event.globalPos()-self.pos()
     
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        #마우스 위치정보를 항상 갱신
-        self.pt = event.globalPos()
-        print(self.pt.x(),self.pt.y())
         if Qt.LeftButton and self.m_flag:  
             self.move(event.globalPos()-self.m_Position)
             event.accept()
