@@ -1,4 +1,4 @@
-import sys , asyncio , math , os
+import sys , asyncio , math , os , random
 from PyQt5 import QtGui
 
 from PyQt5.QtWidgets import QMainWindow ,QApplication, QWidget, QLabel,QAction,qApp
@@ -29,7 +29,7 @@ class Sticker(QMainWindow):
         self.label = QLabel(centralwidget)
 
         self.movie = QMovie(self.imgPath)
-        print(self.movie)
+        
         self.label.setMovie(self.movie)
         self.movie.start()
         self.movie.stop()
@@ -42,7 +42,12 @@ class Sticker(QMainWindow):
 
         self.movie.start()
 
-        self.setGeometry(0,0,self.w , self.h)
+        # 등장 위치는 랜덤
+        screen_rect = app.desktop().screenGeometry()
+        x = random.randrange(0,screen_rect.width() - self.w)
+        y = random.randrange(0,screen_rect.height() - self.h)
+
+        self.setGeometry(x,y,self.w , self.h)
 
         self.show()
 
