@@ -29,7 +29,7 @@ class Sticker(QMainWindow):
         self.label = QLabel(centralwidget)
 
         self.movie = QMovie(self.imgPath)
-        
+
         self.label.setMovie(self.movie)
         self.movie.start()
         self.movie.stop()
@@ -55,15 +55,15 @@ class Sticker(QMainWindow):
     def setContextMenu(self):
         
         self.setContextMenuPolicy(Qt.ActionsContextMenu)
-        timer_start_action = QAction('마우스 따라가기', self)
-        timer_stop_action = QAction('마우스 추적 종료' , self)
+        timer_start_action = QAction('마우스 따라가기', self,checkable= True)
+        
         quit_action = QAction('잘가 ㅠㅠ',self)
         self.addAction(timer_start_action)
-        self.addAction(timer_stop_action)
+        
         self.addAction(quit_action)
 
-        timer_start_action.triggered.connect(self.startTimerThread)
-        timer_stop_action.triggered.connect(self.stopTimerThread)
+        timer_start_action.triggered.connect(self.handlerTimerThread)
+        
         quit_action.triggered.connect(self.quitApp)
 
 
@@ -88,13 +88,12 @@ class Sticker(QMainWindow):
         # 해당 방향으로 이동
         self.move(self.pos() + vector)
 
-    # timerThread 시작
-    def startTimerThread(self):
-        self.timer.start(10)
-
-    # timerThread 종료
-    def stopTimerThread(self):
-        self.timer.stop()
+    # timerThread 시작 및 종료
+    def handlerTimerThread(self,state):
+        if state:
+            self.timer.start(10)
+        else:
+            self.timer.stop()
 
     # 프로그램 종료
     def quitApp(self):
