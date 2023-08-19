@@ -1,4 +1,4 @@
-import sys , asyncio , math
+import sys , asyncio , math , os
 from PyQt5 import QtGui
 
 from PyQt5.QtWidgets import QMainWindow ,QApplication, QWidget, QLabel,QAction,qApp
@@ -9,9 +9,9 @@ from PyQt5.QtGui import QMouseEvent, QCursor, QPixmap , QMovie
 
 
 class Sticker(QMainWindow):
-    def __init__(self):
+    def __init__(self,imgPath):
         super(Sticker,self).__init__()
-        self.imgPath = "image/sticker.gif"
+        self.imgPath = imgPath
         self.setContextMenu()
         self.stickerInit()
         self.timerInit()
@@ -34,8 +34,8 @@ class Sticker(QMainWindow):
         self.movie.start()
         self.movie.stop()
 
-        self.w = int(self.movie.frameRect().size().width() * 0.5)
-        self.h = int(self.movie.frameRect().size().height() * 0.5)
+        self.w = int(self.movie.frameRect().size().width())
+        self.h = int(self.movie.frameRect().size().height())
 
         print(self.w , self.h)
         self.movie.setScaledSize(QSize(self.w , self.h))
@@ -78,7 +78,7 @@ class Sticker(QMainWindow):
         
         # 적당히 벡터의 크기를 늘려줌
         vector *= 2
-        print(vector.x() , vector.y())
+        # print(vector.x() , vector.y())
 
         # 해당 방향으로 이동
         self.move(self.pos() + vector)
@@ -113,7 +113,15 @@ class Sticker(QMainWindow):
         
 
 if __name__ == '__main__':
-    print("실행")
+    path_dir = 'image'
+    file_list = os.listdir(path_dir)
+    
     app = QApplication(sys.argv)
-    ex = Sticker()
+    
+    #폴더에 있는 모든 이미지를 생성
+    ex = []
+    for file in file_list:
+        ex.append( Sticker("image/" + file))
+    
+
     sys.exit(app.exec_())
