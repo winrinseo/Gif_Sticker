@@ -12,18 +12,11 @@ class Sticker(QMainWindow):
     def __init__(self):
         super(Sticker,self).__init__()
         self.imgPath = "image/sticker.gif"
-        self.positionInit()
         self.setContextMenu()
         self.stickerInit()
         self.timerInit()
 
-    #각종 위치의 초기값을 설정
-    def positionInit(self):
-        #마우스 위치 벡터
-        self.pt = QPoint(0,0)
-        
-        
-
+    
     def stickerInit(self):
         centralwidget = QWidget(self)
         self.setCentralWidget(centralwidget)
@@ -57,16 +50,22 @@ class Sticker(QMainWindow):
     def setContextMenu(self):
         
         self.setContextMenuPolicy(Qt.ActionsContextMenu)
+        timer_start_action = QAction('마우스 따라가기', self)
+        timer_stop_action = QAction('마우스 추적 종료' , self)
         quit_action = QAction('잘가 ㅠㅠ',self)
+        self.addAction(timer_start_action)
+        self.addAction(timer_stop_action)
         self.addAction(quit_action)
 
+        timer_start_action.triggered.connect(self.startTimerThread)
+        timer_stop_action.triggered.connect(self.stopTimerThread)
         quit_action.triggered.connect(self.quitApp)
 
 
     def timerInit(self):
         self.timer = QTimer()
         self.timer.timeout.connect(self.__workHandler)
-        self.timer.start(10)
+        
 
     def __workHandler(self):
         #중앙 위치 계산
@@ -84,6 +83,15 @@ class Sticker(QMainWindow):
         # 해당 방향으로 이동
         self.move(self.pos() + vector)
 
+    # timerThread 시작
+    def startTimerThread(self):
+        self.timer.start(10)
+
+    # timerThread 종료
+    def stopTimerThread(self):
+        self.timer.stop()
+
+    # 프로그램 종료
     def quitApp(self):
         qApp.quit()
 
