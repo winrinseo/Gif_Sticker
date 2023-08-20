@@ -1,8 +1,8 @@
 import sys , asyncio , math , os , random
-from PyQt5 import QtGui
+from PyQt5 import QtCore, QtGui
 
 from PyQt5.QtWidgets import QMainWindow ,QApplication, QWidget, QLabel,QAction,qApp
-from PyQt5.QtCore import Qt,QRect,QSize,QTimer,QPoint
+from PyQt5.QtCore import QEvent, QObject, Qt,QRect,QSize,QTimer,QPoint
 from PyQt5.QtGui import QMouseEvent, QCursor, QPixmap , QMovie
 
             
@@ -11,6 +11,7 @@ from PyQt5.QtGui import QMouseEvent, QCursor, QPixmap , QMovie
 class Sticker(QMainWindow):
     def __init__(self,imgPath):
         super(Sticker,self).__init__()
+        self.sizeUp = False
         self.imgPath = imgPath
         self.setContextMenu()
         self.stickerInit()
@@ -18,15 +19,14 @@ class Sticker(QMainWindow):
 
     
     def stickerInit(self):
-        centralwidget = QWidget(self)
-        self.setCentralWidget(centralwidget)
-
+        self.centralwidget = QWidget(self)
+        self.setCentralWidget(self.centralwidget)
         flags = Qt.WindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setWindowFlags(flags)
         self.setAttribute(Qt.WA_NoSystemBackground , True)
         self.setAttribute(Qt.WA_TranslucentBackground,True)
 
-        self.label = QLabel(centralwidget)
+        self.label = QLabel(self.centralwidget)
 
         self.movie = QMovie(self.imgPath)
 
@@ -38,6 +38,7 @@ class Sticker(QMainWindow):
         self.h = int(self.movie.frameRect().size().height())
 
         print(self.w , self.h)
+        
         self.movie.setScaledSize(QSize(self.w , self.h))
 
         self.movie.start()
@@ -74,7 +75,7 @@ class Sticker(QMainWindow):
 
     def __workHandler(self):
         #중앙 위치 계산
-        centerPos = QPoint(self.pos().x() + self.w // 2 , self.pos().y() + self.h //2)
+        centerPos = QPoint(self.pos().x() + self.w // 2 , self.pos().y() + self.h //2) if not self.sizeUp else QPoint(self.pos().x() + self.w, self.pos().y() + self.h )
         vector = QPoint(QCursor.pos() - centerPos)
         # print(self.pt.x(),self.pt.y())
 
@@ -101,6 +102,7 @@ class Sticker(QMainWindow):
 
     # 마우스 드래그 오버라이딩
     def mousePressEvent(self, event: QMouseEvent) -> None:
+        QApplication.setOverrideCursor(Qt.CursorShape.ClosedHandCursor)
         if event.button() == Qt.LeftButton:
             self.m_flag = True
             self.m_Position=event.globalPos()-self.pos()
@@ -112,9 +114,45 @@ class Sticker(QMainWindow):
 
     
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        QApplication.restoreOverrideCursor()
         self.m_flag=False
         self.setCursor(QCursor(Qt.ArrowCursor))
-        
+
+    def mouseDoubleClickEvent(self, a0: QMouseEvent) -> None:
+        print('call double click')
+        if self.sizeUp:
+            self.sizeUp = False
+            
+            self.setFixedSize(self.w, self.h)
+
+            self.label.setFixedSize(self.w , self.h)
+            
+            self.movie.setScaledSize(QSize(self.w , self.h))
+            
+            print(self.movie.frameRect().size().width() , self.movie.frameRect().size().height())
+            
+        else :
+            self.sizeUp = True
+            
+            self.setFixedSize(self.w * 2 , self.h * 2)
+
+            #라벨의 크기를 바꿔야 함 (라벨이 도화지임)
+            self.label.setFixedSize(self.w * 2 , self.h * 2)
+            
+            self.movie.setScaledSize(QSize(self.w * 2, self.h * 2))
+            
+            print(self.movie.frameRect().size().width() , self.movie.frameRect().size().height())
+            
+            
+            
+
+    # mouse hover event
+    def enterEvent(self, event: QEvent) -> None:
+        # print(QCursor.pos() - self.pos())
+        QApplication.setOverrideCursor(Qt.CursorShape.CustomCursor)
+    
+    def leaveEvent(self, event: QEvent) -> None:
+        QApplication.restoreOverrideCursor()
 
 if __name__ == '__main__':
     path_dir = 'image'
